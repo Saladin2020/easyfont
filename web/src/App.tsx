@@ -105,7 +105,7 @@ function Glyphs({ font, sel, setSel, onSaved, rev }: { font: FontData; sel: numb
             <h3>{label}</h3>
             <div className="glyph-grid">
               {font.glyphs.filter(f).map((x) => (
-                <button key={x.cp} className={x.cp === sel ? "on" : ""} title={`U+${x.cp.toString(16).toUpperCase()}`} onClick={() => setSel(x.cp)}>{label(x)}</button>
+                <button key={x.cp} className={x.cp === sel ? "on" : ""} title={`U+${x.cp.toString(16).toUpperCase()}`} onClick={() => setSel(x.cp)}>{glyphLabel(x)}</button>
               ))}
             </div>
           </div>
@@ -115,7 +115,7 @@ function Glyphs({ font, sel, setSel, onSaved, rev }: { font: FontData; sel: numb
         {g && (
           <>
             <div className="toolbar">
-              <b className="big">{label(g)}</b>
+              <b className="big">{glyphLabel(g)}</b>
               <span className="mono">U+{g.cp.toString(16).toUpperCase().padStart(4, "0")} · top {top} · advance {g.adv}{g.mark ? " · mark (zero width)" : ""}</span>
               <button className="primary" onClick={save}>Save glyph</button>
               {err && <span className="err">{err}</span>}
@@ -148,7 +148,7 @@ function Glyphs({ font, sel, setSel, onSaved, rev }: { font: FontData; sel: numb
 }
 
 const PUA_LABEL: Record<number, string> = { 0xf70f: "ญ⁻", 0xf700: "ฐ⁻" };
-const label = (g: GlyphRow) => PUA_LABEL[g.cp] ?? (g.mark ? `◌${g.char}` : g.char);
+const glyphLabel = (g: GlyphRow) => PUA_LABEL[g.cp] ?? (g.mark ? `◌${g.char}` : g.char);
 
 function context(g: GlyphRow): string {
   if (g.cp === 0xf70f) return "ญ ญุ ญู ญาติ";
