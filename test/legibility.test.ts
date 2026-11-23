@@ -26,7 +26,7 @@ describe("มะขาม 12 legibility (ช น ส ร์)", () => {
 
   it("keeps the metrics the runtimes rely on (top row, advance width, row count)", () => {
     const metrics: Record<string, [number, number, number]> = {
-      "ช": [8, 7, 7], "ซ": [8, 7, 7], "น": [8, 6, 7], "ส": [8, 6, 7], "\u0E4C": [0, 3, 3],
+      "ข": [8, 6, 7], "ฃ": [8, 6, 7], "ช": [8, 7, 7], "ซ": [8, 7, 7], "น": [8, 6, 7], "ส": [8, 6, 7], "\u0E4C": [0, 3, 3],
     };
     for (const [ch, [top, width, rows]] of Object.entries(metrics)) {
       expect([g(ch).top, g(ch).rows[0]!.length, g(ch).rows.length], ch).toEqual([top, width, rows]);
@@ -45,6 +45,17 @@ describe("มะขาม 12 legibility (ช น ส ร์)", () => {
     for (const [a, b] of [["น", "บ"], ["ส", "บ"], ["น", "ส"], ["ช", "น"], ["ช", "ส"], ["น", "ณ"]]) {
       expect(diff(a!, b!), `${a}/${b}`).toBeGreaterThanOrEqual(6);
     }
+  });
+
+  it("ข (and ฃ) differ clearly from บ: a pointed, rounded base instead of บ's flat one", () => {
+    expect(diff("ข", "บ")).toBeGreaterThanOrEqual(5);
+    expect(diff("ฃ", "บ")).toBeGreaterThanOrEqual(8);
+    for (const ch of ["ข", "ฃ"]) {
+      expect(g(ch).rows.at(-1), ch).toBe("...#..");
+      expect(g(ch).rows.at(-2), ch).toBe("..#.#.");
+    }
+    expect(diff("ข", "ช")).toBeGreaterThanOrEqual(6);
+    expect(diff("ข", "ฃ")).toBeGreaterThanOrEqual(2);
   });
 
   it("thanthakhat ์ no longer looks like sara i ิ", () => {
