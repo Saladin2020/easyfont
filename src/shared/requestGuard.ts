@@ -87,4 +87,4 @@ export function checkRequest(
 }
 
 /** Vite dev UI origins (it proxies /api to the API server). */
-export const DEV_UI_ORIGINS = ["http://127.0.0.1:5194", "http://localhost:5185"];
+export const DEV_UI_ORIGINS = ["http://127.0.0.1:5194", "http://localhost:5194"];
