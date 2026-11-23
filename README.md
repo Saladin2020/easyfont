@@ -55,20 +55,25 @@ autoload, and a **PixiJS v8 BitmapFont** runtime. CLI, web editor and MCP server
 | Font | Size | Cell | Use | Glyphs |
 |---|---|---|---|---|
 | `makham-12` · มะขาม 12 | 12 px | 18 rows, baseline 15 | dialogue, titles | 193 drawn + 41 generated Thai presentation forms |
+| `makham-16` · มะขาม 16 | 16 px | 22 rows, baseline 18 | dialogue that must read easily: 9-row Thai body, looped heads, 2 px letter gap | 193 drawn + 41 generated |
 | `makham-8` · มะขาม 8 | 8 px | 15 rows, baseline 12 | HUD, menus, item counts | 193 drawn + 41 generated |
 
 <p align="center"><img src="docs/assets/makham-12-specimen.png" width="88%" alt="Makham 12 specimen: Thai pangram poem, Malay and English" /></p>
+<p align="center"><img src="docs/assets/makham-16-specimen.png" width="88%" alt="Makham 16 specimen" /></p>
 <p align="center"><img src="docs/assets/makham-8-specimen.png" width="70%" alt="Makham 8 specimen" /></p>
 
-Both are drawn from scratch for Easy Suite (loopless Thai, 2×2 heads, square Latin) — not traced from any font —
-and released under the **SIL Open Font License 1.1** with no Reserved Font Name, so you can ship, modify and rename
+มะขาม 12 and มะขาม 8 are drawn from scratch for Easy Suite (loopless Thai, 2×2 heads, square Latin); they are not traced from any font.
+มะขาม 16 is a separate, opt-in font: a taller cell with looped Thai heads, tone marks stacked above upper vowels in
+their own zones, and 2 px between letters. Its Thai is hand-drawn using Noto Sans Thai Looped (OFL) as a proportion
+reference only, and its Latin and digits are the มะขาม 12 glyphs on the new baseline. Choosing it (`--font makham-16`)
+changes nothing for projects that use มะขาม 12. All three fonts are released under the **SIL Open Font License 1.1** with no Reserved Font Name, so you can ship, modify and rename
 them. The code is MIT.
 
 ## Quick start
 
 ```bash
 npm install
-npx tsx src/cli.ts init --workspace ~/my-fonts          # fonts/makham-12.easyfont, fonts/makham-8.easyfont, OFL.txt
+npx tsx src/cli.ts init --workspace ~/my-fonts          # fonts/makham-12, makham-16, makham-8 (.easyfont), OFL.txt
 npx tsx src/cli.ts check --workspace ~/my-fonts         # coverage + stacking on every sample sentence
 npx tsx src/cli.ts render "น้ำชา ปี่ ฟื้น\nSelamat pagi" --out shot.png --scale 4 --workspace ~/my-fonts
 npx tsx src/cli.ts export --workspace ~/my-fonts        # exports/easyfont-{bmfont,godot,pixi,png}/

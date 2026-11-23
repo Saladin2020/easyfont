@@ -28,7 +28,7 @@ describe("export", () => {
     expect([fnt.chars.get(0xf726)!.x, fnt.chars.get(0xf726)!.y]).toEqual([ek.x, ek.y]);
     expect(Number(fnt.common.scaleW) * Number(fnt.common.scaleH)).toBeLessThanOrEqual(256 * 256);
     expect(readFileSync(path.join(dir, "OFL.txt"), "utf8")).toMatch(/SIL Open Font License/);
-    expect(r.fonts.map((f) => f.id)).toEqual(["makham-12", "makham-8"]);
+    expect(r.fonts.map((f) => f.id)).toEqual(["makham-12", "makham-16", "makham-8"]);
   });
 
   it("godot, pixi and png presets", async () => {
