@@ -102,3 +102,45 @@ describe("มะขาม 16 (makham-16): taller, looped, opt-in", () => {
     }
   });
 });
+
+describe("มะขาม 16 is the default Thai font; มะขาม 12 stays available by id", () => {
+  it("picks makham-16, then makham-12, then the first font", async () => {
+    const { pickDefaultFont, DEFAULT_FONT_ID } = await import("../src/shared/defaults.js");
+    expect(DEFAULT_FONT_ID).toBe("makham-16");
+    expect(pickDefaultFont(["makham-12", "makham-16", "makham-8"])).toBe("makham-16");
+    expect(pickDefaultFont(["makham-12", "makham-8"])).toBe("makham-12"); // older workspaces keep their font
+    expect(pickDefaultFont(["custom"])).toBe("custom");
+    expect(pickDefaultFont([])).toBe("makham-16");
+  });
+
+  it("draws the Thai digits ๐-๙ at body size, not borrowed from มะขาม 12", () => {
+    const src12 = readFileSync(new URL("../samples/fonts/makham-12.easyfont", import.meta.url), "utf8");
+    const f12 = parseFont(src12, "makham-12.easyfont").font;
+    for (const d of [..."๐๑๒๓๔๕๖๗๘๙"]) {
+      const x = g(d);
+      expect(x.top + x.rows.length, d).toBe(18); // sits on the baseline
+      expect(x.rows.length, d).toBeGreaterThanOrEqual(9); // full body height (๕ ๖ ๗ ๘ ๙ rise above it)
+      const old = f12.glyphs.find((y) => y.cp === d.codePointAt(0))!;
+      expect(x.rows.join("/"), d).not.toBe(old.rows.join("/"));
+    }
+    const ink = (d: string) => g(d).rows.join("/");
+    expect(new Set([..."๐๑๒๓๔๕๖๗๘๙"].map(ink)).size).toBe(10);
+  });
+
+  it("keeps ฎ/ฏ apart from ญ and ภ, ฆ apart from ม, ษ apart from ส and บ", () => {
+    const cells = (ch: string) => {
+      const x = g(ch), out = new Set<string>();
+      x.rows.forEach((r, y) => [...r].forEach((c, col) => c === "#" && out.add(`${x.top + y},${col}`)));
+      return out;
+    };
+    const diff = (a: string, b: string) => {
+      const A = cells(a), B = cells(b);
+      return [...A].filter((p) => !B.has(p)).length + [...B].filter((p) => !A.has(p)).length;
+    };
+    for (const [a, b, min] of [["ฎ", "ญ", 12], ["ฏ", "ญ", 12], ["ฎ", "ฏ", 4], ["ฎ", "ภ", 4], ["ฏ", "ภ", 4], ["ฆ", "ม", 10], ["ษ", "ส", 12], ["ษ", "บ", 8]] as const) {
+      expect(diff(a, b), `${a} vs ${b}`).toBeGreaterThanOrEqual(min);
+    }
+    // ฎ ฏ tails stay left of the right stem, so ฎุ / ฏู never collide
+    for (const ch of ["ฎ", "ฏ"]) for (const r of g(ch).rows.slice(9)) expect(r.slice(4), ch).toMatch(/^\.*$/);
+  });
+});

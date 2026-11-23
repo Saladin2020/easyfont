@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { get, post, type Check, type FontData, type GlyphRow, type Workspace } from "./api";
 
+/** Same rule as src/shared/defaults.ts: มะขาม 16 first, then มะขาม 12, then the first font. */
+const pickDefaultFont = (ids: string[]) => ids.find((x) => x === "makham-16") ?? ids.find((x) => x === "makham-12") ?? ids[0] ?? "";
+
 type Tab = "glyphs" | "preview" | "check" | "source";
 const TABS: Array<[Tab, string]> = [["glyphs", "Glyphs · ตัวอักษร"], ["preview", "Preview · ตัวอย่าง"], ["check", "Check · ตรวจ"], ["source", "Source"]];
 const GROUPS: Array<[string, (g: GlyphRow) => boolean]> = [
@@ -24,7 +27,7 @@ export function App() {
   useEffect(() => {
     get<Workspace>("/api/workspace").then((w) => {
       setWs(w);
-      setFontId(w.fonts.find((f) => f.id.endsWith("12"))?.id ?? w.fonts[0]?.id ?? "");
+      setFontId(pickDefaultFont(w.fonts.map((f) => f.id)));
     }).catch((e) => setStatus(String(e)));
   }, []);
   const reload = useCallback(() => {

@@ -9,6 +9,7 @@ import { encodePng } from "./png.js";
 import { Raster } from "./raster.js";
 import { dialogueRaster, renderTextRaster } from "./render.js";
 import { dirs, fontIds, loadFontStrict, type LoadedFont } from "./workspace.js";
+import { pickDefaultFont } from "../shared/defaults.js";
 
 export { EXPORT_PRESETS, type ExportPreset };
 export const VERSION = "0.1.0";
@@ -41,7 +42,7 @@ export function fontManifest(fonts: LoadedFont[]) {
   return {
     format: "easyfont-export/1",
     version: VERSION,
-    default: fonts.find((f) => f.id.endsWith("12"))?.id ?? fonts[0]?.id,
+    default: fonts.length ? pickDefaultFont(fonts.map((f) => f.id)) : undefined,
     fonts: fonts.map((f) => ({ id: f.id, name: f.source.name, th: f.source.th, size: f.source.size, line: f.source.line, baseline: f.source.baseline, fnt: `${f.id}.fnt`, png: `${f.id}.png` })),
     samples: [...SAMPLE_TH.slice(0, 5), SAMPLE_LATIN[1]],
   };
@@ -172,24 +173,27 @@ function pixiDemo(): string {
       const root = new PIXI.Container();
       root.scale.set(S);
       app.stage.addChild(root);
-      const title = ef.text("Easy Font · มะขาม 12 / มะขาม 8", { font: big, fill: 0xf4ae3d });
+      // every size comes from the font's line height, so the box fits มะขาม 16 (22 px) and มะขาม 12 (18 px)
+      const lh = ef.fonts[big].line, sh = ef.fonts[small].line;
+      const title = ef.text("Easy Font · " + (ef.fonts[big].th || big) + " / มะขาม 8", { font: big, fill: 0xf4ae3d });
       title.position.set(8, 6);
       root.addChild(title);
       ef.manifest.samples.forEach((s, i) => {
         const t = ef.text(s, { font: small, fill: 0xf7ebd3 });
-        t.position.set(8, 26 + i * 15);
+        t.position.set(8, 8 + lh + i * sh);
         root.addChild(t);
       });
+      const top = lh - 6, bodyY = lh + 4, hintY = bodyY + 2 * lh + 2, bottom = hintY + sh + 2;
       const box = new PIXI.Container();
-      box.position.set(8, 186);
+      box.position.set(8, 268 - bottom);
       const [who, line] = LINES[lang];
-      box.addChild(new PIXI.Graphics().rect(0, 8, 464, 74).fill(0x523822).rect(2, 10, 460, 70).fill(0x2a1d13).rect(10, 0, ef.measure(who, big) + 10, 16).fill(0xf4ae3d));
+      box.addChild(new PIXI.Graphics().rect(0, top, 464, bottom - top).fill(0x523822).rect(2, top + 2, 460, bottom - top - 4).fill(0x2a1d13).rect(10, 0, ef.measure(who, big) + 10, lh).fill(0xf4ae3d));
       const name = ef.text(who, { font: big, fill: 0x2a1606 });
-      name.position.set(15, -2);
+      name.position.set(15, 0);
       const body = ef.text(line, { font: big, fill: 0xf7ebd3, wrap: 440 });
-      body.position.set(12, 18);
+      body.position.set(12, bodyY);
       const hint = ef.text("1 ไทย · 2 Bahasa Melayu · 3 English", { font: small, fill: 0xa08a6a });
-      hint.position.set(300, 64);
+      hint.position.set(300, hintY);
       box.addChild(name, body, hint);
       root.addChild(box);
       document.querySelectorAll("[data-lang]").forEach((b) => b.classList.toggle("on", b.dataset.lang === lang));
@@ -211,7 +215,7 @@ export function parityData(fonts: LoadedFont[]) {
   const metrics: Record<string, Record<string, number>> = {};
   const probe = [...new Set([..."กขปฝฟฬญฐฎฏอaAgW.!", ...shapeThai("ปี่ ฟื้น ญุ ฐู ฎุ น้ำ ก่")])].map((c) => c.codePointAt(0)!);
   for (const f of fonts) metrics[f.id] = Object.fromEntries(probe.filter((cp) => f.font.glyphs.has(cp)).map((cp) => [String(cp), f.font.glyphs.get(cp)!.adv]));
-  const def = fonts.find((f) => f.id === "makham-12") ?? fonts[0]!;
+  const def = fonts.find((f) => f.id === pickDefaultFont(fonts.map((x) => x.id))) ?? fonts[0]!;
   const lay = layoutText(def.font, "สวัสดีครับ");
   const measure = lay.placed.reduce((s, p) => s + p.g.adv, 0);
   return { shape, metrics, measure };

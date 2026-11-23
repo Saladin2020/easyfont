@@ -42,7 +42,7 @@ func _init() -> void:
 				bad += 1
 				print("FAIL metric %s U+%X got %d want %d" % [id, int(k), got_adv, want_adv])
 	print("M| metrics fonts=%d chars=%d" % [parity["metrics"].size(), chars])
-	var w: int = ef.measure("สวัสดีครับ", "makham-12")
+	var w: int = ef.measure("สวัสดีครับ", ef.default_font)
 	print("W| measure=%d want=%d" % [w, int(parity["measure"])])
 	if w != int(parity["measure"]):
 		bad += 1

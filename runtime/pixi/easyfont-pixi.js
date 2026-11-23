@@ -3,7 +3,7 @@
  *
  *   import { loadEasyFonts } from "./easyfont-pixi.js";
  *   const ef = await loadEasyFonts(PIXI, "fonts/fonts.json");
- *   const t = ef.text("น้ำชาร้อนๆ", { font: "makham-12", fill: 0xf7ebd3, scale: 3, wrap: 300 });
+ *   const t = ef.text("น้ำชาร้อนๆ", { font: "makham-16", fill: 0xf7ebd3, scale: 3, wrap: 300 });
  *   app.stage.addChild(t);
  *   t.text = ef.shape("ปี่ฟื้น");      // always shape before setting text yourself
  *

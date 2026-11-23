@@ -45,7 +45,7 @@ describe("MCP server", () => {
     expect(saved.saved).toBe(true);
     expect(body(await client.callTool({ name: "get_glyph", arguments: { char: "€" } })).source.top).toBe(9);
 
-    const check = body(await client.callTool({ name: "check_font", arguments: { font: "makham-12", texts: ["ราคา 5€ ถูกมาก"] } }));
+    const check = body(await client.callTool({ name: "check_font", arguments: { font: "makham-16", texts: ["ราคา 5€ ถูกมาก"] } }));
     expect(check.ok).toBe(true);
     expect(body(await client.callTool({ name: "shape_text", arguments: { text: "ปี่" } })).codepoints).toEqual(["U+0E1B", "U+F702", "U+F713"]);
     const img = await client.callTool({ name: "render_text", arguments: { text: "สวัสดีจ้ะ", dialogue: "ป้านูรุล", scale: 2 } });
