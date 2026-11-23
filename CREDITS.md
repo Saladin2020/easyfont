@@ -2,6 +2,10 @@
 
 ## Fonts
 
+- **มะขาม 16 (Makham 16)**: original pixel design drawn for Easy Suite. Its Thai glyphs are hand-drawn using
+  Noto Sans Thai Looped (© The Noto Project Authors, SIL OFL 1.1) as a proportion reference only, and no outlines
+  were copied. Its Latin and punctuation come from มะขาม 12. © 2026 Salahuddin Benno and the Easy Suite
+  contributors, SIL Open Font License 1.1, no Reserved Font Name.
 - **มะขาม 12 (Makham 12)** and **มะขาม 8 (Makham 8)** — original pixel designs drawn for Easy Suite in the `easyfont/1`
   text format. Not traced or derived from any other font. © 2026 Salahuddin Benno and the Easy Suite contributors.
   Licensed under the **SIL Open Font License 1.1**, no Reserved Font Name (`samples/OFL.txt`, copied into every export).

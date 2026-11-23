@@ -12,6 +12,7 @@ import { EXPORT_PRESETS, exportFonts, glyphSheetRaster, type ExportPreset } from
 import { encodePng } from "./lib/png.js";
 import { dialogueRaster, renderTextPng } from "./lib/render.js";
 import { checkFont, fontIds, initWorkspace, loadFont, loadFontStrict, resolveWorkspace, setGlyph, shapeInfo, workspaceSummary } from "./lib/workspace.js";
+import { pickDefaultFont } from "./shared/defaults.js";
 
 const program = new Command();
 
@@ -26,7 +27,7 @@ const fail = (e: unknown) => {
 async function defaultFont(root: string, id?: string) {
   if (id) return id;
   const ids = await fontIds(root);
-  return ids.find((x) => x.endsWith("12")) ?? ids[0] ?? "makham-12";
+  return pickDefaultFont(ids);
 }
 
 program.name("easyfont").description("Original Thai / Latin / Malay pixel bitmap fonts with correct Thai stacking → BMFont .fnt + PNG, Godot 4.3+ FontFile, PixiJS v8 BitmapFont").version("0.1.0");

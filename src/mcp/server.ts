@@ -17,6 +17,7 @@ import { dialogueRaster, renderTextPng } from "../lib/render.js";
 import { encodePng } from "../lib/png.js";
 import { checkFont, fontIds, loadFont, loadFontStrict, resolveWorkspace, saveFont, setGlyph, shapeInfo, workspaceSummary } from "../lib/workspace.js";
 import { isEntry, mcpErr as err, mcpMsg as msg, mcpText as text, parseMcpArgs, startHttp } from "./http.js";
+import { pickDefaultFont } from "../shared/defaults.js";
 
 export const MCP_TOOL_NAMES = ["workspace_info", "list_glyphs", "get_glyph", "set_glyph", "write_font", "check_font", "shape_text", "render_text", "export_fonts"] as const;
 
@@ -37,7 +38,7 @@ export function createEasyFontMcp(workspaceRoot: string): McpServer {
   const pick = async (id?: string) => {
     if (id) return id;
     const ids = await fontIds(root);
-    return ids.find((x) => x.endsWith("12")) ?? ids[0] ?? "makham-12";
+    return pickDefaultFont(ids);
   };
 
   server.registerTool("workspace_info", { title: "Workspace info", description: "List the fonts (size, line height, glyph count), the Thai/Latin sample sentences and the source format. Call this first.", inputSchema: {} }, async () => text({ name: "easyfont", ...(await workspaceSummary(root)), format: FORMAT_CHEATSHEET }));

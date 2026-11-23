@@ -1,9 +1,9 @@
 extends Node
 ## Easy Font autoload ("EasyFont"). Thai-correct pixel bitmap fonts for Labels, RichTextLabels and buttons.
 ##   EasyFont.shape("น้ำ")                 → text with Thai presentation forms (always shape before display)
-##   EasyFont.font("makham-12")            → FontFile (imported from the BMFont .fnt)
-##   EasyFont.apply($Label, "สวัสดี", "makham-12")   → font, size and shaped text in one call
-##   EasyFont.theme("makham-12")           → a Theme with the font as default (or merge into Easy UI's theme)
+##   EasyFont.font("makham-16")            → FontFile (imported from the BMFont .fnt; "" = default font)
+##   EasyFont.apply($Label, "สวัสดี", "makham-16")   → font, size and shaped text in one call
+##   EasyFont.theme("makham-16")           → a Theme with the font as default (or merge into Easy UI's theme)
 ## Easy Dialogue / Easy UI call EasyFont.shape() when this autoload exists.
 
 const DIR := "res://easyfont/"
@@ -40,6 +40,13 @@ func font(id: String = "") -> FontFile:
 	var res: FontFile = load(DIR + fonts[id]["fnt"])
 	_cache[id] = res
 	return res
+
+
+## Line height in font pixels (makham-16: 22, makham-12: 18). Use it to size dialogue boxes and rows.
+func line_of(id: String = "") -> int:
+	if id == "":
+		id = default_font
+	return int(fonts.get(id, {}).get("line", 18))
 
 
 func size_of(id: String = "") -> int:

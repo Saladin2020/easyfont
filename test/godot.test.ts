@@ -25,7 +25,7 @@ describe.skipIf(!GODOT)("Godot export", () => {
     const run = spawnSync(GODOT!, ["--headless", "--path", out, "--script", "res://test_font.gd"], { encoding: "utf8", timeout: 180_000 });
     expect(run.stdout).not.toMatch(/^FAIL/m);
     expect(run.stdout).toMatch(/^P\| shape ok cases=\d+$/m);
-    expect(run.stdout).toMatch(/^M\| metrics fonts=2 chars=\d+$/m);
+    expect(run.stdout).toMatch(/^M\| metrics fonts=3 chars=\d+$/m);
     expect(run.stdout).toMatch(/^OK$/m);
   }, 900_000);
 });

@@ -29,7 +29,7 @@ describe("MCP server", () => {
 
   it("info → glyphs → draw (refused, dry run, saved) → check → shape → render → export", async () => {
     const info = body(await client.callTool({ name: "workspace_info", arguments: {} }));
-    expect(info.fonts.map((f: { id: string }) => f.id)).toEqual(["makham-12", "makham-8"]);
+    expect(info.fonts.map((f: { id: string }) => f.id)).toEqual(["makham-12", "makham-16", "makham-8"]);
     expect(info.format).toMatch(/easyfont\/1/);
     const marks = body(await client.callTool({ name: "list_glyphs", arguments: { font: "makham-8", marks: true } }));
     expect(marks.glyphs.length).toBe(16);
@@ -45,7 +45,7 @@ describe("MCP server", () => {
     expect(saved.saved).toBe(true);
     expect(body(await client.callTool({ name: "get_glyph", arguments: { char: "€" } })).source.top).toBe(9);
 
-    const check = body(await client.callTool({ name: "check_font", arguments: { font: "makham-12", texts: ["ราคา 5€ ถูกมาก"] } }));
+    const check = body(await client.callTool({ name: "check_font", arguments: { font: "makham-16", texts: ["ราคา 5€ ถูกมาก"] } }));
     expect(check.ok).toBe(true);
     expect(body(await client.callTool({ name: "shape_text", arguments: { text: "ปี่" } })).codepoints).toEqual(["U+0E1B", "U+F702", "U+F713"]);
     const img = await client.callTool({ name: "render_text", arguments: { text: "สวัสดีจ้ะ", dialogue: "ป้านูรุล", scale: 2 } });
@@ -64,7 +64,7 @@ describe("web API", () => {
     const app = createApp({ workspaceRoot: root, webRoot: "/nonexistent", dev: true, host: "127.0.0.1" });
     const h = { host: "127.0.0.1:8948" };
     const ws = (await (await app.request("http://127.0.0.1/api/workspace", { headers: h })).json()) as { fonts: unknown[] };
-    expect(ws.fonts.length).toBe(2);
+    expect(ws.fonts.length).toBe(3);
     const f = (await (await app.request("http://127.0.0.1/api/font/makham-12", { headers: h })).json()) as { glyphs: unknown[]; zones: { tone: number } };
     expect(f.glyphs.length).toBeGreaterThan(185);
     const png = await app.request(`http://127.0.0.1/api/render/makham-12?text=${encodeURIComponent("น้ำ")}&scale=2`, { headers: h });

@@ -19,4 +19,4 @@ Env `EASYFONT_WORKSPACE` sets the workspace when `--workspace` is not given.
 | `render_text` | `text`, `font?`, `scale?`, `wrap?`, `dialogue?` | PNG image (+ missing characters) |
 | `export_fonts` | `preset? bmfont|godot|pixi|png|all`, `fonts?[]` | `{ dirs, files, fonts, warnings }` |
 
-Default font: the one whose id ends in `12` (มะขาม 12).
+Default font: `makham-16` (มะขาม 16), then `makham-12` if a workspace has no มะขาม 16, then the first font.

@@ -11,8 +11,8 @@ beforeAll(async () => ({ root, cleanup } = await tempWorkspace()));
 afterAll(() => cleanup());
 
 describe("sample fonts", () => {
-  it("both fonts cover Thai, ASCII and punctuation and stack every sample correctly", async () => {
-    for (const id of ["makham-12", "makham-8"]) {
+  it("all sample fonts cover Thai, ASCII and punctuation and stack every sample correctly", async () => {
+    for (const id of ["makham-12", "makham-16", "makham-8"]) {
       const c = await checkFont(root, id);
       expect(c.errors).toEqual([]);
       expect(c.missing).toEqual([]);
@@ -23,9 +23,9 @@ describe("sample fonts", () => {
     }
   });
 
-  it("workspace summary lists both fonts", async () => {
+  it("workspace summary lists the sample fonts", async () => {
     const s = await workspaceSummary(root);
-    expect(s.fonts.map((f) => f.id)).toEqual(["makham-12", "makham-8"]);
+    expect(s.fonts.map((f) => f.id)).toEqual(["makham-12", "makham-16", "makham-8"]);
     expect(s.fonts[0]).toMatchObject({ th: "มะขาม 12", size: 12 });
   });
 

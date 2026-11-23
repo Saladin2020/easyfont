@@ -36,15 +36,15 @@
 
 # Easy Font
 
-**ฟอนต์พิกเซลไทย มะขาม 12 และ มะขาม 8 · สระและวรรณยุกต์ซ้อนถูกที่ · ไทย Bahasa Melayu English**  
-Two original pixel bitmap fonts for games — **มะขาม 12 (Makham 12)** for dialogue and **มะขาม 8 (Makham 8)** for UI
-labels — that cover every Thai character, Latin (English and Malay) and common punctuation, with **correct Thai
+**ฟอนต์พิกเซลไทย มะขาม 16 · มะขาม 12 · มะขาม 8 · สระและวรรณยุกต์ซ้อนถูกที่ · ไทย Bahasa Melayu English**  
+Pixel bitmap fonts for games: **มะขาม 16 (Makham 16)** is the default Thai font for dialogue and UI text,
+**มะขาม 8 (Makham 8)** is for small UI labels, and **มะขาม 12 (Makham 12)** stays available by id for older projects. They that cover every Thai character, Latin (English and Malay) and common punctuation, with **correct Thai
 stacking**: tone marks drop when there is no upper vowel (ก่) and sit above one when there is (กี่), marks move left
 over ป ฝ ฟ ฬ, ญ ฐ lose their tails over ุ ู, and ำ goes under the tone mark (น้ำ). Draw glyphs as `#`/`.` text
 (`easyfont/1`), check them, and export **BMFont `.fnt` + PNG**, a **Godot 4.3+ FontFile** project with an `EasyFont`
 autoload, and a **PixiJS v8 BitmapFont** runtime. CLI, web editor and MCP server; local only, no network.
 
-<p align="center"><img src="docs/assets/makham-12-dialogue.png" width="70%" alt="Dialogue box in Makham 12: ป้านูรุล — สวัสดีจ้ะ น้ำชาร้อนๆ ที่ร้านป้าเปิดแล้ว" /></p>
+<p align="center"><img src="docs/assets/makham-16-dialogue.png" width="70%" alt="Dialogue box in Makham 16: ป้านูรุล — สวัสดีจ้ะ น้ำชาร้อนๆ ที่ร้านป้าเปิดแล้ว" /></p>
 
 | Godot 4.3 `EasyFont` demo (Thai) | PixiJS v8 BitmapText demo (Malay) |
 |---|---|
@@ -54,21 +54,32 @@ autoload, and a **PixiJS v8 BitmapFont** runtime. CLI, web editor and MCP server
 
 | Font | Size | Cell | Use | Glyphs |
 |---|---|---|---|---|
-| `makham-12` · มะขาม 12 | 12 px | 18 rows, baseline 15 | dialogue, titles | 193 drawn + 41 generated Thai presentation forms |
+| `makham-16` · มะขาม 16 (**default**) | 16 px | 22 rows, baseline 18 | Thai dialogue, titles, UI text: 9-row Thai body, looped heads, 2 px letter gap | 193 drawn + 41 generated Thai presentation forms |
 | `makham-8` · มะขาม 8 | 8 px | 15 rows, baseline 12 | HUD, menus, item counts | 193 drawn + 41 generated |
+| `makham-12` · มะขาม 12 (legacy) | 12 px | 18 rows, baseline 15 | older projects; pick it with `--font makham-12` | 193 drawn + 41 generated |
 
-<p align="center"><img src="docs/assets/makham-12-specimen.png" width="88%" alt="Makham 12 specimen: Thai pangram poem, Malay and English" /></p>
+**Display at 2× or larger** (integer scale, nearest filtering). At 1× the Thai marks are only one pixel apart.
+Size boxes from the font's line height (`EasyFont.line_of(id)` in Godot, `ef.fonts[id].line` in Pixi): 22 px for
+มะขาม 16 and 18 px for มะขาม 12.
+
+**Default font.** Tools that are not given a font (CLI, MCP, export manifest `default`, Godot `EasyFont.default_font`,
+web editor) use `makham-16`. A workspace without it falls back to `makham-12`, so older workspaces render exactly as before.
+
+<p align="center"><img src="docs/assets/makham-16-specimen.png" width="88%" alt="Makham 16 specimen: Thai pangram poem, Malay and English" /></p>
 <p align="center"><img src="docs/assets/makham-8-specimen.png" width="70%" alt="Makham 8 specimen" /></p>
+<p align="center"><img src="docs/assets/makham-12-specimen.png" width="70%" alt="Makham 12 specimen (legacy)" /></p>
 
-Both are drawn from scratch for Easy Suite (loopless Thai, 2×2 heads, square Latin) — not traced from any font —
-and released under the **SIL Open Font License 1.1** with no Reserved Font Name, so you can ship, modify and rename
+มะขาม 12 and มะขาม 8 are drawn from scratch for Easy Suite (loopless Thai, 2×2 heads, square Latin); they are not traced from any font.
+มะขาม 16 has a taller cell with looped Thai heads, tone marks stacked above upper vowels in their own zones, Thai
+digits on the full body and 2 px between letters. Its Thai is hand-drawn using Noto Sans Thai Looped (OFL) as a
+proportion reference only, and its Latin and punctuation are the มะขาม 12 glyphs on the new baseline. All three fonts are released under the **SIL Open Font License 1.1** with no Reserved Font Name, so you can ship, modify and rename
 them. The code is MIT.
 
 ## Quick start
 
 ```bash
 npm install
-npx tsx src/cli.ts init --workspace ~/my-fonts          # fonts/makham-12.easyfont, fonts/makham-8.easyfont, OFL.txt
+npx tsx src/cli.ts init --workspace ~/my-fonts          # fonts/makham-12, makham-16, makham-8 (.easyfont), OFL.txt
 npx tsx src/cli.ts check --workspace ~/my-fonts         # coverage + stacking on every sample sentence
 npx tsx src/cli.ts render "น้ำชา ปี่ ฟื้น\nSelamat pagi" --out shot.png --scale 4 --workspace ~/my-fonts
 npx tsx src/cli.ts export --workspace ~/my-fonts        # exports/easyfont-{bmfont,godot,pixi,png}/
@@ -135,8 +146,9 @@ Full reference: [docs/FORMAT.md](docs/FORMAT.md).
 
 ```gdscript
 # Godot: always shape Thai text (apply() does it), turn Label autowrap off and wrap with EasyFont
-EasyFont.apply($Name, "ป้านูรุล", "makham-12", Color("#2a1606"))
-$Body.text = EasyFont.wrap("สวัสดีจ้ะ น้ำชาร้อนๆ ที่ร้านป้าเปิดแล้ว", "makham-12", 440)
+EasyFont.apply($Name, "ป้านูรุล", "makham-16", Color("#2a1606"))
+$Body.text = EasyFont.wrap("สวัสดีจ้ะ น้ำชาร้อนๆ ที่ร้านป้าเปิดแล้ว", "makham-16", 440)
+$Body.custom_minimum_size.y = 2 * EasyFont.line_of("makham-16")  # two lines of 22 px
 ```
 
 Line breaks: Thai has no spaces between words, so put U+200B (zero-width space) where a line may break; `wrap()`
@@ -214,5 +226,5 @@ workflow (CLI · web editor · MCP server) and the same targets (**Godot 4.3+** 
 
 ## Credits
 
-มะขาม 12 and มะขาม 8 are original designs, © 2026 Salahuddin Benno and the Easy Suite contributors, SIL OFL 1.1
+มะขาม 16, มะขาม 12 and มะขาม 8 are original designs, © 2026 Salahuddin Benno and the Easy Suite contributors, SIL OFL 1.1
 (`samples/OFL.txt`). See [CREDITS.md](CREDITS.md). Code: MIT.
