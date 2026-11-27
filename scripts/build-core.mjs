@@ -7,8 +7,10 @@ const out = "runtime/pixi/easyfont-core.js";
 const res = await build({ entryPoints: ["src/shared/shape.ts"], bundle: true, format: "esm", platform: "neutral", write: false, legalComments: "none", target: "es2020" });
 const body = `/* Easy Font core — generated from src/shared/shape.ts by scripts/build-core.mjs. Do not edit. MIT. */\n${res.outputFiles[0].text}`;
 if (process.argv.includes("--check")) {
+  // compare with LF line endings: a Windows checkout (core.autocrlf) turns the committed file into CRLF
+  const lf = (t) => t.replace(/\r\n/g, "\n");
   const cur = readFileSync(out, "utf8");
-  if (cur !== body) {
+  if (lf(cur) !== lf(body)) {
     console.error(`${out} is stale: run node scripts/build-core.mjs`);
     process.exit(1);
   }

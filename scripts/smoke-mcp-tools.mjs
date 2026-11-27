@@ -21,7 +21,7 @@ async function exercise(client, label) {
   if (tools.length !== 9) fail(`${label}: expected 9 tools`);
   const info = body(await client.callTool({ name: "workspace_info", arguments: {} }));
   console.log(`[${label}] fonts:`, info.fonts?.map((f) => `${f.id} ${f.th} ${f.glyphs} glyphs`).join(" · "));
-  if (info.fonts?.length !== 3) fail(`${label}: workspace_info`);
+  if (info.fonts?.length !== 5) fail(`${label}: workspace_info`); // มะขาม 8/12/16 + Sarabun Pixel 12/14
   const chk = body(await client.callTool({ name: "check_font", arguments: {} }));
   console.log(`[${label}] check ok=${chk.ok}`, chk.fonts?.map((f) => `${f.id}: missing ${f.missing.length}, stacking ${f.stacking.length}`).join(" · "));
   if (!chk.ok) fail(`${label}: check_font`);
