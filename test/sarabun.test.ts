@@ -49,7 +49,7 @@ describe("Sarabun Pixel", () => {
       const { font } = await loadFont(root, id);
       const to = font.glyphs.get(0x0e15)!;
       const do_ = font.glyphs.get(0x0e14)!;
-      expect(JSON.stringify(to.rows ?? to)).not.toEqual(JSON.stringify(do_.rows ?? do_));
+      expect(Buffer.from(to.bits).toString("hex")).not.toEqual(Buffer.from(do_.bits).toString("hex"));
     }
   });
 
