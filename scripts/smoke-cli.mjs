@@ -26,7 +26,7 @@ const run = (args, expect, opts = {}) => {
   }
   return out;
 };
-run(["init"], /Wrote 4 file/);
+run(["init"], /Wrote 7 file/);
 run(["info"], /makham-12\s+Makham 12 · มะขาม 12\s+12px/);
 run(["list", "makham-8", "--marks"], /16 glyph\(s\)/);
 run(["show", "ก"], /"char": "ก"/);
