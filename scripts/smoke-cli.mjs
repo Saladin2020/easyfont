@@ -3,13 +3,15 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+// node + the tsx CLI directly: spawning "npx" fails on Windows without a shell
+const TSX_CLI = `${process.cwd()}/node_modules/tsx/dist/cli.mjs`;
 
 const ws = mkdtempSync(path.join(os.tmpdir(), "easyfont-cli-"));
 let failed = 0;
 const run = (args, expect, opts = {}) => {
   let out = "";
   try {
-    out = execFileSync("npx", ["tsx", "src/cli.ts", ...args, "--workspace", ws], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    out = execFileSync(process.execPath, [TSX_CLI, "src/cli.ts", ...args, "--workspace", ws], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   } catch (e) {
     out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
     if (!opts.fails) {
