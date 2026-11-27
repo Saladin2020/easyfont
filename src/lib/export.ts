@@ -5,6 +5,7 @@ import { shapeThai } from "../shared/shape.js";
 import { EXPORT_PRESETS, type CompiledFont, type ExportPreset } from "../shared/types.js";
 import { bmfontText, buildAtlas } from "./bmfont.js";
 import { pkgRoot, resolveInside, RUNTIME_DIR, Writer } from "./fsx.js";
+import { readdir } from "node:fs/promises";
 import { encodePng } from "./png.js";
 import { Raster } from "./raster.js";
 import { dialogueRaster, renderTextRaster } from "./render.js";
@@ -55,7 +56,7 @@ async function writeBmfonts(w: Writer, fonts: LoadedFont[], sub: string, res: Ex
     await w.write(`${sub}${f.id}.fnt`, bmfontText(f.font, atlas, `${f.id}.png`));
     if (!res.fonts.some((x) => x.id === f.id)) res.fonts.push({ id: f.id, chars: atlas.chars.length, atlas: `${atlas.width}x${atlas.height}` });
   }
-  await w.copy(path.join(pkgRoot, "samples", "OFL.txt"), `${sub}OFL.txt`);
+  for (const lic of (await readdir(path.join(pkgRoot, "samples"))).filter((f) => /^OFL(-[A-Za-z0-9]+)?\.txt$/.test(f))) await w.copy(path.join(pkgRoot, "samples", lic), `${sub}${lic}`);
   const m = fontManifest(fonts);
   await w.write(`${sub}fonts.json`, `${JSON.stringify(m, null, 2)}\n`);
 }

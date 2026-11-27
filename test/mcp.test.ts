@@ -29,7 +29,7 @@ describe("MCP server", () => {
 
   it("info → glyphs → draw (refused, dry run, saved) → check → shape → render → export", async () => {
     const info = body(await client.callTool({ name: "workspace_info", arguments: {} }));
-    expect(info.fonts.map((f: { id: string }) => f.id)).toEqual(["makham-12", "makham-16", "makham-8"]);
+    expect(info.fonts.map((f: { id: string }) => f.id)).toEqual(["makham-12", "makham-16", "makham-8", "sarabun-px-12", "sarabun-px-14"]);
     expect(info.format).toMatch(/easyfont\/1/);
     const marks = body(await client.callTool({ name: "list_glyphs", arguments: { font: "makham-8", marks: true } }));
     expect(marks.glyphs.length).toBe(16);
@@ -64,7 +64,7 @@ describe("web API", () => {
     const app = createApp({ workspaceRoot: root, webRoot: "/nonexistent", dev: true, host: "127.0.0.1" });
     const h = { host: "127.0.0.1:8948" };
     const ws = (await (await app.request("http://127.0.0.1/api/workspace", { headers: h })).json()) as { fonts: unknown[] };
-    expect(ws.fonts.length).toBe(3);
+    expect(ws.fonts.length).toBe(5);
     const f = (await (await app.request("http://127.0.0.1/api/font/makham-12", { headers: h })).json()) as { glyphs: unknown[]; zones: { tone: number } };
     expect(f.glyphs.length).toBeGreaterThan(185);
     const png = await app.request(`http://127.0.0.1/api/render/makham-12?text=${encodeURIComponent("น้ำ")}&scale=2`, { headers: h });

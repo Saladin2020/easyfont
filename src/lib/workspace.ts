@@ -32,10 +32,12 @@ export async function initWorkspace(root: string, opts: { force?: boolean } = {}
     await copyFile(path.join(SAMPLES_DIR, "fonts", f), dst);
     written.push(dst);
   }
-  const ofl = path.join(d.fonts, "OFL.txt");
-  if (!existsSync(ofl) || opts.force) {
-    await copyFile(path.join(pkgRoot, "samples", "OFL.txt"), ofl);
-    written.push(ofl);
+  // OFL.txt (the มะขาม fonts) + OFL-<Source>.txt for fonts rasterized from an open-licensed TTF (Sarabun Pixel)
+  for (const lic of (await readdir(path.join(pkgRoot, "samples"))).filter((f) => /^OFL(-[A-Za-z0-9]+)?\.txt$/.test(f))) {
+    const dst = path.join(d.fonts, lic);
+    if (existsSync(dst) && !opts.force) continue;
+    await copyFile(path.join(pkgRoot, "samples", lic), dst);
+    written.push(dst);
   }
   return written;
 }

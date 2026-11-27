@@ -1,0 +1,11 @@
+# Hand pixel edits applied over the rasterized Sarabun Pixel 14 (same glyph syntax as easyfont/1)
+# ต: FreeType's 1-bit hinting loses the notch at the top and it reads as ด
+g ต 12
+..##.##.
+.#..#..#
+.#.###.#
+.##..#.#
+.#.###.#
+.####..#
+.###...#
+.##....#
