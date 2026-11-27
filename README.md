@@ -56,6 +56,8 @@ autoload, and a **PixiJS v8 BitmapFont** runtime. CLI, web editor and MCP server
 |---|---|---|---|---|
 | `makham-16` · มะขาม 16 (**default**) | 16 px | 22 rows, baseline 18 | Thai dialogue, titles, UI text: 9-row Thai body, looped heads, 2 px letter gap | 193 drawn + 41 generated Thai presentation forms |
 | `makham-8` · มะขาม 8 | 8 px | 15 rows, baseline 12 | HUD, menus, item counts | 193 drawn + 41 generated |
+| `sarabun-px-14` · สารบรรณ พิกเซล 14 | 14 px | 31 rows, baseline 20 | **most legible**: HUD, quest boxes, menus, dialogue on small screens | 193 + 41 generated |
+| `sarabun-px-12` · สารบรรณ พิกเซล 12 | 12 px | 27 rows, baseline 19 | legible small labels (instead of มะขาม 8) | 193 + 41 generated |
 | `makham-12` · มะขาม 12 (legacy) | 12 px | 18 rows, baseline 15 | older projects; pick it with `--font makham-12` | 193 drawn + 41 generated |
 
 **Display at 2× or larger** (integer scale, nearest filtering). At 1× the Thai marks are only one pixel apart.
@@ -74,6 +76,16 @@ web editor) use `makham-16`. A workspace without it falls back to `makham-12`, s
 digits on the full body and 2 px between letters. Its Thai is hand-drawn using Noto Sans Thai Looped (OFL) as a
 proportion reference only, and its Latin and punctuation are the มะขาม 12 glyphs on the new baseline. All three fonts are released under the **SIL Open Font License 1.1** with no Reserved Font Name, so you can ship, modify and rename
 them. The code is MIT.
+
+### Sarabun Pixel (OFL)
+
+`sarabun-px-14` and `sarabun-px-12` are **pixel rasterizations of Sarabun Medium** (SIL OFL 1.1, Copyright 2018 The
+Sarabun Project Authors, no Reserved Font Name): FreeType's 1-bit hinted rasterizer, then the Thai marks are re-zoned
+(body · blank row · upper vowel · blank row · tone) so they stack with the same presentation forms as มะขาม, and a few
+glyphs are hand-edited (`ต` keeps its notch). The license ships as `fonts/OFL-Sarabun.txt` in the workspace and in every
+export next to `OFL.txt`. Regenerate with `scripts/import-sarabun.sh /path/to/Sarabun-Medium.ttf` (dev-time, needs
+Python + Pillow); `scripts/import-ttf.py` works for any OFL Thai TTF. Pick it like any font: `--font sarabun-px-14`, or
+`"font": "sarabun-px-14"` in an Easy Kit manifest.
 
 ## Quick start
 

@@ -1,0 +1,48 @@
+# Hand pixel edits applied over the rasterized Sarabun Pixel 14 (same glyph syntax as easyfont/1)
+# ต: FreeType's 1-bit hinting loses the notch at the top and it reads as ด
+g ต 12
+..##.##.
+.#..#..#
+.#.###.#
+.##..#.#
+.#.###.#
+.####..#
+.###...#
+.##....#
+
+# ส / ศ: the rasterized ส was ล with one pixel moved (ท่องสามเมือง read ท่องลามเมือง); give both the
+# top-right tail Thai ส ศ ษ have (rising one row above the body like ช's flag) so they never read as ล / ค
+g ส 11
+.......#
+..####.#
+.#...###
+...##.#.
+.######.
+.#....#.
+.###..#.
+.#.#..#.
+.###..#.
+
+g ศ 11
+.......#
+..####.#
+.##...##
+.#..##.#
+.#.#.#.#
+.#####.#
+..#....#
+..#....#
+..#....#
+
+# ช: was ข plus one pixel; a two-row tail hooking back left over the stem, as in Sarabun
+g ช 10
+......#.
+.......#
+.###...#
+.##.#.##
+#.#.#..#
+.###...#
+...#...#
+...#...#
+...#...#
+....###.

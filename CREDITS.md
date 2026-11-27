@@ -22,3 +22,9 @@
 - Godot 4.3+ (MIT) imports the BMFont files natively.
 
 Code: MIT (see LICENSE).
+
+## Sarabun Pixel 12 / 14
+
+Rasterized from **Sarabun Medium**, Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun),
+licensed under the SIL Open Font License 1.1 (`samples/OFL-Sarabun.txt`). Modified Version: pixel bitmap at 12 / 14 px,
+Thai marks re-positioned, ต hand-edited. Distributed under the same license.
