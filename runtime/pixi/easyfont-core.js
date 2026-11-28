@@ -1,4 +1,4 @@
-/* Easy Font core — generated from src/shared/shape.ts by scripts/build-core.mjs. Do not edit. MIT. */
+/* Easy Font core — generated from src/shared/core.ts (shape.ts + fit.ts) by scripts/build-core.mjs. Do not edit. MIT. */
 // src/shared/shape.ts
 var TALL = /* @__PURE__ */ new Set([3611, 3613, 3615, 3628]);
 var TAIL = /* @__PURE__ */ new Map([[3597, 63247], [3600, 63232]]);
@@ -100,6 +100,114 @@ function unshape(text) {
   for (const [k, v] of TAIL) back.set(v, k);
   return String.fromCodePoint(...[...text].map((c) => back.get(c.codePointAt(0)) ?? c.codePointAt(0)));
 }
+
+// src/shared/fit.ts
+var MARK = /[\u0e31\u0e34-\u0e3a\u0e47-\u0e4e]/;
+function clusters(text) {
+  const out = [];
+  for (const ch of text) {
+    if (out.length && (MARK.test(ch) || ch === "\u0E33")) out[out.length - 1] += ch;
+    else out.push(ch);
+  }
+  return out;
+}
+function segmenter() {
+  const I = globalThis.Intl;
+  return I?.Segmenter;
+}
+function breakPieces(text) {
+  const S = segmenter();
+  let words;
+  if (S) {
+    try {
+      words = [...new S("th", { granularity: "word" }).segment(text)].map((s) => s.segment);
+    } catch {
+      words = clusters(text);
+    }
+  } else {
+    words = clusters(text);
+  }
+  const out = [];
+  let carry = "";
+  for (const w of words) {
+    if (!w) continue;
+    if (out.length && /^[\s)\]}»”’.,;:!?…/·ๆฯ%]+$/.test(w)) {
+      out[out.length - 1] += w;
+      continue;
+    }
+    if (/^[([{«“‘]+$/.test(w)) {
+      carry += w;
+      continue;
+    }
+    out.push(carry + w);
+    carry = "";
+  }
+  if (carry) out.push(carry);
+  return out;
+}
+function widthOf(s, adv, shape) {
+  let w = 0;
+  for (const ch of shape(s)) w += adv(ch);
+  return w;
+}
+function ellipsize(text, adv, shape, maxWidth, ellipsis = "\u2026") {
+  if (widthOf(text, adv, shape) <= maxWidth) return text;
+  const cl = clusters(text);
+  const ew = widthOf(ellipsis, adv, shape);
+  let lo = 0, hi = cl.length;
+  while (lo < hi) {
+    const mid = lo + hi + 1 >> 1;
+    if (widthOf(cl.slice(0, mid).join(""), adv, shape) + ew <= maxWidth) lo = mid;
+    else hi = mid - 1;
+  }
+  return cl.slice(0, lo).join("").replace(/[\s·/,:;]+$/, "") + ellipsis;
+}
+function wrapLines(text, adv, shape, maxWidth, opts = {}) {
+  const lines = [];
+  for (const para of text.split("\n")) {
+    let line = "";
+    for (const piece of breakPieces(para)) {
+      const trial = line + piece;
+      if (!line || widthOf(trial.replace(/\s+$/, ""), adv, shape) <= maxWidth) {
+        if (!line && widthOf(piece.replace(/\s+$/, ""), adv, shape) > maxWidth) {
+          let part = "";
+          for (const c of clusters(piece)) {
+            if (part && widthOf(part + c, adv, shape) > maxWidth) {
+              lines.push(part);
+              part = "";
+            }
+            part += c;
+          }
+          line = part;
+        } else line = trial;
+        continue;
+      }
+      lines.push(line.replace(/\s+$/, ""));
+      line = piece.replace(/^\s+/, "");
+      if (widthOf(line.replace(/\s+$/, ""), adv, shape) > maxWidth) {
+        let part = "";
+        for (const c of clusters(line)) {
+          if (part && widthOf(part + c, adv, shape) > maxWidth) {
+            lines.push(part);
+            part = "";
+          }
+          part += c;
+        }
+        line = part;
+      }
+    }
+    lines.push(line.replace(/\s+$/, ""));
+  }
+  const max = opts.maxLines ?? 0;
+  if (max > 0 && lines.length > max) {
+    const kept = lines.slice(0, max);
+    const rest = lines.slice(max - 1).join(" ");
+    kept[max - 1] = ellipsize(rest, adv, shape, maxWidth, opts.ellipsis ?? "\u2026");
+    if (kept[max - 1] === rest) kept[max - 1] = ellipsize(rest + (opts.ellipsis ?? "\u2026"), adv, shape, maxWidth, opts.ellipsis ?? "\u2026");
+    return kept;
+  }
+  return lines;
+}
 export {
   DESC,
   FORMS,
@@ -112,7 +220,11 @@ export {
   TONES,
   UPPER,
   YAMAKKAN,
+  breakPieces,
+  clusters,
+  ellipsize,
   isThaiMark,
   shapeThai,
-  unshape
+  unshape,
+  wrapLines
 };

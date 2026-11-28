@@ -4,6 +4,9 @@
  *   import { loadEasyFonts } from "./easyfont-pixi.js";
  *   const ef = await loadEasyFonts(PIXI, "fonts/fonts.json");
  *   const t = ef.text("น้ำชาร้อนๆ", { font: "makham-16", fill: 0xf7ebd3, scale: 3, wrap: 300 });
+ *   // fit a HUD line: wrap Thai at word boundaries (Intl.Segmenter), at most 2 lines, "…" when cut
+ *   const q = ef.text(longQuest, { font: "makham-8", wrap: 180, maxLines: 2 });
+ *   const one = ef.ellipsize(name, "makham-8", 90);   // single line, ellipsized to 90 font px
  *   app.stage.addChild(t);
  *   t.text = ef.shape("ปี่ฟื้น");      // always shape before setting text yourself
  *
@@ -11,7 +14,7 @@
  * shaper as the Easy Font CLI), which maps combining marks to presentation forms in the font.
  * MIT. Fonts: SIL OFL 1.1.
  */
-import { shapeThai } from "./easyfont-core.js";
+import { shapeThai, wrapLines, ellipsize as fitEllipsis } from "./easyfont-core.js";
 
 export { shapeThai };
 
@@ -32,41 +35,37 @@ export async function loadEasyFonts(PIXI, manifestUrl = "fonts/fonts.json") {
     for (const ch of shapeThai(text)) w += f.bitmap.chars[ch]?.xAdvance ?? 0;
     return w;
   };
-  /** Break at spaces / U+200B so no line is wider than maxWidth font pixels. Returns shaped text with \n. */
-  const wrap = (text, id, maxWidth) => {
+  const advOf = (id) => {
     const f = pick(id);
-    const adv = (ch) => f.bitmap.chars[ch]?.xAdvance ?? 0;
-    return text
-      .split("\n")
-      .map((para) => {
-        const out = [];
-        let line = "";
-        let lineW = 0;
-        for (const word of shapeThai(para).split(/(?<=[ \u200b])/)) {
-          let w = 0;
-          for (const ch of word.replace(/[ \u200b]$/, "")) w += adv(ch);
-          if (line && lineW + w > maxWidth) {
-            out.push(line.replace(/[ \u200b]+$/, ""));
-            line = "";
-            lineW = 0;
-          }
-          line += word.replace(/\u200b$/, "");
-          lineW += w + (word.endsWith(" ") ? adv(" ") : 0);
-        }
-        out.push(line);
-        return out.join("\n");
-      })
-      .join("\n");
+    return (ch) => f.bitmap.chars[ch]?.xAdvance ?? 0;
   };
-  /** A BitmapText in an Easy Font. opts: font, fill, scale (integer), wrap (max width in font pixels). */
+  const ellipsisFor = (id) => (pick(id).bitmap.chars["\u2026"] ? "\u2026" : "...");
+  /**
+   * Fit text into lines no wider than maxWidth font pixels. Thai breaks at word boundaries
+   * (Intl.Segmenter), spaces and U+200B still break, and an over-long word splits between
+   * clusters. opts.maxLines keeps that many lines and ellipsizes the last. Returns shaped text with \n.
+   */
+  const wrap = (text, id, maxWidth, opts = {}) =>
+    wrapLines(String(text).replace(/\u200b/g, " "), advOf(id), shapeThai, maxWidth, { maxLines: opts.maxLines, ellipsis: ellipsisFor(id) })
+      .map(shapeThai)
+      .join("\n");
+  /** One line, cut with an ellipsis so it is no wider than maxWidth font pixels. Returns shaped text. */
+  const ellipsize = (text, id, maxWidth) => shapeThai(fitEllipsis(String(text), advOf(id), shapeThai, maxWidth, ellipsisFor(id)));
+  /** Lines the text would take at maxWidth (for sizing panels before drawing). */
+  const lines = (text, id, maxWidth, opts = {}) => wrap(text, id, maxWidth, opts).split("\n").length;
+  /**
+   * A BitmapText in an Easy Font. opts: font, fill, scale (integer), wrap (max width in font pixels),
+   * maxLines (with wrap: keep that many lines, ellipsize the rest), fit (single line, ellipsize to this width).
+   */
   const text = (str, opts = {}) => {
     const f = pick(opts.font);
-    const t = new PIXI.BitmapText({ text: opts.wrap ? wrap(str, f.id, opts.wrap) : shapeThai(str), style: { fontFamily: f.family, fontSize: f.size, fill: opts.fill ?? 0xffffff } });
+    const body = opts.wrap ? wrap(str, f.id, opts.wrap, { maxLines: opts.maxLines }) : opts.fit ? ellipsize(str, f.id, opts.fit) : shapeThai(str);
+    const t = new PIXI.BitmapText({ text: body, style: { fontFamily: f.family, fontSize: f.size, fill: opts.fill ?? 0xffffff } });
     t.roundPixels = true;
     // Pixi shifts BMFont text down by lineHeight − base; undo it so y is the cell top, as in Godot and the CLI
     t.pivot.y = f.bitmap.baseLineOffset ?? 0;
     if (opts.scale) t.scale.set(opts.scale);
     return t;
   };
-  return { fonts, manifest, text, shape: shapeThai, measure, wrap };
+  return { fonts, manifest, text, shape: shapeThai, measure, wrap, ellipsize, lines };
 }
